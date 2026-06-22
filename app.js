@@ -2,24 +2,45 @@ const express = require('express');
 const app = express()
 const port = 3000
 
+// supabaseClient.js
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+// Fail early if environment variables are missing
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Missing Supabase URL or API Key in environment variables.');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+module.exports = supabase;
+
+app.get('/code/:code', async (req, res) => {
+  try {
+    const { code } = req.params;
+
+    const { data, error } = await supabase
+      .from('redirects')
+      .select('url')
+      .eq('code', code)
+      .single();
+
+    if (error || !data) {
+      return res.status(404).send('Code not found');
+    }
+
+    res.redirect(`https://${data.url}`);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
-
-const redirects = {
-    "abc" : "google.com",
-    "123" : "apple.com",
-    "amzn" : "amazon.com"
-};
-
-const keys = Object.keys(redirects);
-const values = Object.values(redirects);
-
-for (let i = 0; i < keys.length; i++) {
-    app.get(`/${keys[i]}`, (req, res) => {
-    res.redirect(`https://${values[i]}`)
-    })
-}
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
