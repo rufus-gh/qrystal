@@ -11,7 +11,9 @@
     <input type="text" class="name" placeholder="Name of the qr">
     <input type="text" class="url" placeholder="url">
     <button onclick="createQR()">Create</button>
+    <div id="qr"></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         const client = supabase.createClient('https://vbbohspjmelnrugjyzjo.supabase.co', 'sb_publishable_MRY-JibVCsj7lZpbWIlRrQ_b4RLHb0i');
 
@@ -29,8 +31,14 @@
 
         async function createQR() {
             if (!session) return
-            await client.from('redirects').insert({ name: _name.value, url: url.value, code: generateId(), user_id: session.user.id }) // to fix remove code collision
-            window.location.href = '/dashboard.html'
+            const code = generateId()
+            await client.from('redirects').insert({ name: _name.value, url: url.value, code, user_id: session.user.id })
+
+            new QRCode(document.getElementById('qr'), {
+                text: `${window.location.origin}/code/${code}`,
+                width: 200,
+                height: 200,
+            })
         }
     </script>
 </body>

@@ -25,7 +25,7 @@ app.get('/code/:code', async (req, res) => {
 
     const { data, error } = await supabase
       .from('redirects')
-      .select('url')
+      .select('url, name')
       .eq('code', code)
       .single();
 
@@ -33,7 +33,21 @@ app.get('/code/:code', async (req, res) => {
       return res.status(404).send('Code not found');
     }
 
-    res.redirect(`https://${data.url}`);
+    const url = data.url.startsWith('http') ? data.url : `https://${data.url}`;
+    const title = data.name || url;
+
+    res.send(`<!DOCTYPE html>
+<html>
+<head>
+    <title>${title}</title>
+    <meta property="og:title" content="${title}" />
+    <meta property="og:url" content="${url}" />
+    <meta http-equiv="refresh" content="0;url=${url}" />
+</head>
+<body>
+    <script>window.location.href = "${url}"</script>
+</body>
+</html>`);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
