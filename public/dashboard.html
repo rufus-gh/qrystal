@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+
+<body>
+    <a href="/new.html">Create new</a>
+    <button onclick="signOut()">Sign out</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+        const client = supabase.createClient('https://vbbohspjmelnrugjyzjo.supabase.co', 'sb_publishable_MRY-JibVCsj7lZpbWIlRrQ_b4RLHb0i')
+
+        client.auth.getSession().then(({ data: { session } }) => {
+            if (!session) {
+                window.location.href = '/login.html'
+                return
+            }
+        })
+
+        async function signOut() {
+            await client.auth.signOut()
+            window.location.href = '/login.html'
+        }
+    </script>
+</body>
+
+</html>

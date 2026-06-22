@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+        const client = supabase.createClient('https://vbbohspjmelnrugjyzjo.supabase.co', 'sb_publishable_MRY-JibVCsj7lZpbWIlRrQ_b4RLHb0i')
+
+        // Redirect to dashboard if already logged in
+        client.auth.onAuthStateChange((event, session) => {
+            if (session) window.location.href = '/dashboard.html'
+        })
+
+        async function loginWithGitHub() {
+            await client.auth.signInWithOAuth({
+                provider: 'github',
+                options: { redirectTo: 'http://localhost:3000/dashboard.html' }
+            })
+        }
+    </script>
+
+    <button onclick="loginWithGitHub()">Sign in with GitHub</button>
+</body>
+
+</html>
