@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a QR</title>
+</head>
+
+<body>
+    <input type="text" class="name" placeholder="Name of the qr">
+    <input type="text" class="url" placeholder="url">
+    <button onclick="createQR()">Create</button>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script>
+        const client = supabase.createClient('https://vbbohspjmelnrugjyzjo.supabase.co', 'sb_publishable_MRY-JibVCsj7lZpbWIlRrQ_b4RLHb0i');
+
+        const generateId = () => Math.random().toString(36).substring(2, 10);
+
+        let session = null
+
+        client.auth.getSession().then(({ data: { session: s } }) => {
+            if (!s) { window.location.href = '/login.html'; return }
+            session = s
+        });
+
+        _name = document.querySelector('.name');
+        url = document.querySelector('.url');
+
+        async function createQR() {
+            if (!session) return
+            await client.from('redirects').insert({ name: _name.value, url: url.value, code: generateId(), user_id: session.user.id }) // to fix remove code collision
+            window.location.href = '/dashboard.html'
+        }
+    </script>
+</body>
+
+</html>
