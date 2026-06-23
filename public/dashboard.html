@@ -11,21 +11,58 @@
     <a href="/new.html">Create new</a>
     <button onclick="signOut()">Sign out</button>
 
+    <div id="qr-list"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         const client = supabase.createClient('https://vbbohspjmelnrugjyzjo.supabase.co', 'sb_publishable_MRY-JibVCsj7lZpbWIlRrQ_b4RLHb0i')
+        const qrList = document.getElementById("qr-list");
 
-        client.auth.getSession().then(({ data: { session } }) => {
-            if (!session) {
-                window.location.href = '/login.html'
-                return
-            }
-        })
+        let session = null
+
+        client.auth.getSession().then(({ data: { session: s } }) => {
+            if (!s) { window.location.href = '/login.html'; return }
+            session = s
+        });
+
+        async function getQrList() {
+            if (!session) return
+            const { data, error } = await client.from('redirects').select('url, name, code').eq('user_id', session.user.id);
+
+            //new QRCode(document.getElementById('qr'), {
+            //    text: `${window.location.origin}/code/${code}`,
+            //    width: 200,
+            //    height: 200,
+            //})
+            data.forEach(item => {
+                const name = item.name;
+                const url = item.url;
+
+                const qrItem = document.createElement("div");
+                qrItem.className = "qrItem";
+
+                qrItem.innerHTML = `
+                <div class="name">${name}</div>
+                <div class="url">${url}</div>
+                <div id="${item.code}"></div>
+                `;
+
+                qrList.appendChild(qrItem);
+                new QRCode(document.getElementById(item.code), {
+                    text: `${window.location.origin}/code/${item.code}`,
+                    width: 100,
+                    height: 100,
+                })
+            });
+        }
 
         async function signOut() {
             await client.auth.signOut()
             window.location.href = '/login.html'
         }
+
+        document.addEventListener('DOMContentLoaded', getQrList);
     </script>
 </body>
 
