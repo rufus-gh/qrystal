@@ -31,7 +31,7 @@ app.get('/code/:code', async (req, res) => {
       .single();
 
     if (error || !data) {
-      return res.status(404).send('test');
+      return res.status(404).send(req.ip);
     }
 
     const url = data.url.startsWith('http') ? data.url : `https://${data.url}`;
