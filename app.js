@@ -54,7 +54,7 @@ app.get('/code/:code', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.redirect('login.html');
+  res.redirect('/login.html');
 })
 
 app.listen(port, () => {
@@ -62,3 +62,5 @@ app.listen(port, () => {
 })
 
 app.use(express.static(path.join(__dirname, 'public')))
+
+module.exports = app;
