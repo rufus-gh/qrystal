@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const geoip = require('geoip-lite');
 const app = express()
 const port = 3000
 
@@ -22,6 +23,8 @@ module.exports = supabase;
 app.get('/code/:code', async (req, res) => {
   try {
     const { code } = req.params;
+
+    console.log(geoip.lookup(req.ip));
 
     const { data, error } = await supabase
       .from('redirects')
