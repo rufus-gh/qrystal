@@ -24,8 +24,6 @@ app.get('/code/:code', async (req, res) => {
   try {
     const { code } = req.params;
 
-    console.log(geoip.lookup(req.ip));
-
     const { data, error } = await supabase
       .from('redirects')
       .select('url, name')
@@ -33,7 +31,7 @@ app.get('/code/:code', async (req, res) => {
       .single();
 
     if (error || !data) {
-      return res.status(404).send('Code not found');
+      return res.status(404).send(geoip.lookup(req.ip));
     }
 
     const url = data.url.startsWith('http') ? data.url : `https://${data.url}`;
