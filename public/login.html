@@ -20,7 +20,7 @@
         async function loginWithGitHub() {
             await client.auth.signInWithOAuth({
                 provider: 'github',
-                options: { redirectTo: 'http://localhost:3000/dashboard.html' }
+                options: { redirectTo: `${window.location.origin}/dashboard.html` }
             })
         }
     </script>
