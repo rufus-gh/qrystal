@@ -9,7 +9,8 @@ const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+//const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // Fail early if environment variables are missing
 if (!supabaseUrl || !supabaseKey) {
@@ -19,6 +20,31 @@ if (!supabaseUrl || !supabaseKey) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 module.exports = supabase;
+
+const generateId = () => Math.random().toString(36).substring(2, 10);
+
+app.get('/shorten/:url', async (req, res) => {
+  try {
+    const { url } = req.params;
+
+    const code = generateId()
+    const { data, error } = await supabase.from('redirects').insert({ name: "shorturl", url: url, code, user_id: null })
+
+
+    if (error) {
+      console.error(error);
+      return res.status(500).json(error);
+    }
+
+    res.json({
+      code,
+      shortUrl: `${req.protocol}://${req.get('host')}/code/${code}`
+    });
+
+  } catch (err) {
+    res.send(err.message);
+  }
+})
 
 app.get('/code/:code', async (req, res) => {
   try {
